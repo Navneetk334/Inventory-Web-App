@@ -530,8 +530,20 @@ const setupEventListeners = () => {
         item.addEventListener('click', () => {
             state.currentView = item.dataset.view;
             renderCurrentView();
+            // Auto-close sidebar on mobile after selection
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('mobile-active');
+            }
         });
     });
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-active');
+        });
+    }
 
     themeToggleSingle.addEventListener('click', () => {
         state.theme = state.theme === 'light' ? 'dark' : 'light';
@@ -569,6 +581,12 @@ const setupEventListeners = () => {
 
     productForm.addEventListener('submit', handleProductSubmit);
     categoryForm.addEventListener('submit', handleCategorySubmit);
+
+    document.querySelector('.main-content').addEventListener('click', () => {
+        if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-active')) {
+            sidebar.classList.remove('mobile-active');
+        }
+    });
 
     globalSearch.addEventListener('input', () => {
         if (state.currentView !== 'products') state.currentView = 'products';
