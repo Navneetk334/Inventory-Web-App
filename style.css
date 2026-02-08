@@ -63,6 +63,9 @@ body.logged-out .app-container {
     z-index: 50;
     position: relative;
     flex-shrink: 0;
+    height: 100%;
+    /* Ensure it takes full parent height */
+    max-height: 100vh;
 }
 
 .sidebar.collapsed {
@@ -234,14 +237,55 @@ body.logged-out .app-container {
     justify-content: center;
 }
 
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 4px;
+}
+
+/* Hide scrollbar for nav-links */
+.nav-links::-webkit-scrollbar {
+    width: 0px;
+}
+
 /* Sidebar Footer & Theme Toggle */
 .sidebar-footer {
     padding-top: 20px;
+    margin-top: auto;
+    /* Pushes the footer to the very bottom */
+    padding-bottom: 40px;
+    /* Increased padding to lift everything up */
     border-top: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     align-items: center;
+    background-color: var(--bg-sidebar);
+}
+
+.theme-btn-single {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    padding: 0;
+    font-size: 1.2rem;
+}
+
+.theme-btn-single:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
 }
 
 /* --- POS (Sell) View --- */
