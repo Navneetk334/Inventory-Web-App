@@ -244,6 +244,122 @@ body.logged-out .app-container {
     align-items: center;
 }
 
+/* --- POS (Sell) View --- */
+.pos-container {
+    max-width: 800px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.pos-card {
+    background: var(--card-bg);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+}
+
+.card-sell {
+    border-top: 5px solid #10b981;
+    /* Green for Sales */
+}
+
+.pos-header h3 {
+    font-size: 1.8rem;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.pos-header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+.pos-input-wrapper {
+    margin: 30px 0;
+    position: relative;
+}
+
+#pos-barcode-input {
+    width: 100%;
+    padding: 20px 30px;
+    font-size: 1.5rem;
+    border-radius: 16px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-main);
+    color: var(--text-main);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+#pos-barcode-input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    outline: none;
+}
+
+.pos-feedback {
+    min-height: 80px;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.pos-feedback.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pos-feedback.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.pos-feedback.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.success-msg {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-align: left;
+}
+
+.success-msg .icon {
+    font-size: 2rem;
+}
+
+.pos-recent-sales h3 {
+    margin-bottom: 16px;
+    font-size: 1.2rem;
+}
+
+/* Mobile Tweak for POS */
+@media (max-width: 768px) {
+    .pos-container {
+        margin: 10px;
+    }
+
+    .pos-card {
+        padding: 24px 16px;
+    }
+
+    #pos-barcode-input {
+        font-size: 1.1rem;
+        padding: 15px;
+    }
+}
+
 .sidebar-brand-info {
     text-align: center;
     font-size: 0.75rem;

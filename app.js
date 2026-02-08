@@ -130,12 +130,120 @@ const renderCurrentView = () => {
 
     switch (state.currentView) {
         case 'dashboard': renderDashboard(); break;
+        case 'sell': renderSell(); break;
         case 'products': renderProducts(); break;
         case 'categories': renderCategories(); break;
         case 'stock': renderStock(); break;
         case 'activity': renderActivity(); break;
         case 'settings': renderSettings(); break;
     }
+
+    // Ensure bulk bar is hidden if not in products view
+    if (state.currentView !== 'products') {
+        clearSelection();
+    }
+};
+
+const renderSell = () => {
+    viewTitle.textContent = 'Point of Sale (POS)';
+    contentArea.innerHTML = `
+        <div class="pos-container">
+            <div class="pos-card card-sell">
+                <div class="pos-header">
+                    <h3>Ready to Scan</h3>
+                    <p>Point your scanner at the product barcode</p>
+                </div>
+                <div class="pos-input-wrapper">
+                    <input type="text" id="pos-barcode-input" placeholder="Scan or type SKU here..." autofocus>
+                    <div class="scan-animation"></div>
+                </div>
+                <div id="pos-feedback" class="pos-feedback hidden"></div>
+            </div>
+
+            <div class="pos-recent-sales">
+                <h3>Recent Transactions Today</h3>
+                <div id="pos-recent-list" class="activity-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    `;
+
+    const input = document.getElementById('pos-barcode-input');
+    input.focus();
+
+    // Maintain focus for scanner
+    input.addEventListener('blur', () => {
+        if (state.currentView === 'sell') setTimeout(() => input.focus(), 100);
+    });
+
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            processSale(input.value);
+            input.value = '';
+        }
+    });
+
+    updatePosRecentSales();
+};
+
+window.processSale = (barcode) => {
+    const feedback = document.getElementById('pos-feedback');
+    const product = state.products.find(p => p.barcode === barcode);
+
+    if (product) {
+        const qtyStr = prompt(`Product: ${product.name}\nCurrent Stock: ${product.stock}\n\nEnter Quantity to Sell:`, "1");
+
+        if (qtyStr === null) return; // Cancelled
+        const qty = parseInt(qtyStr);
+
+        if (isNaN(qty) || qty <= 0) {
+            alert("Invalid quantity entered.");
+            return;
+        }
+
+        if (parseInt(product.stock) >= qty) {
+            product.stock = parseInt(product.stock) - qty;
+            addLog('Sale', 'Quantity Sale', `${product.name} (-${qty} units)`);
+            saveState();
+
+            feedback.innerHTML = `
+                <div class="success-msg">
+                    <span class="icon">✅</span>
+                    <div class="details">
+                        <strong>Sold: ${qty} x ${product.name}</strong>
+                        <p>Remaining Stock: ${product.stock}</p>
+                    </div>
+                </div>
+            `;
+            feedback.className = 'pos-feedback success show';
+            updatePosRecentSales();
+        } else {
+            feedback.innerHTML = `<div class="error-msg">❌ Insufficient Stock: Only ${product.stock} available.</div>`;
+            feedback.className = 'pos-feedback error show';
+        }
+    } else {
+        feedback.innerHTML = `<div class="error-msg">❌ SKU Not Found: ${barcode}</div>`;
+        feedback.className = 'pos-feedback error show';
+    }
+
+    setTimeout(() => {
+        if (feedback) feedback.classList.remove('show');
+    }, 4000);
+};
+
+const updatePosRecentSales = () => {
+    const list = document.getElementById('pos-recent-list');
+    if (!list) return;
+    const sales = state.logs.filter(log => log.type === 'Sale').slice(0, 5);
+    list.innerHTML = sales.map(s => `
+        <div class="activity-item">
+            <div style="display:flex; justify-content:space-between;">
+                <strong>${s.details}</strong>
+                <span style="font-size:0.75rem; color:var(--text-muted);">${s.timestamp.split(', ')[1]}</span>
+            </div>
+        </div>
+    `).join('') || '<p style="text-align:center; color:var(--text-muted);">No sales yet today</p>';
 };
 
 const renderDashboard = () => {
@@ -588,10 +696,34 @@ const setupEventListeners = () => {
         }
     });
 
+    // Bulk Selection Actions
+    const bulkPrintBtn = document.getElementById('bulk-print-btn');
+    const bulkCancelBtn = document.getElementById('bulk-cancel-btn');
+
+    if (bulkPrintBtn) {
+        bulkPrintBtn.addEventListener('click', () => {
+            performBulkPrint();
+        });
+    }
+
+    if (bulkCancelBtn) {
+        bulkCancelBtn.addEventListener('click', () => {
+            clearSelection();
+        });
+    }
+
     globalSearch.addEventListener('input', () => {
         if (state.currentView !== 'products') state.currentView = 'products';
         renderCurrentView();
     });
+};
+
+window.clearSelection = () => {
+    state.selectedProducts = [];
+    const selectAllCheck = document.getElementById('select-all');
+    if (selectAllCheck) selectAllCheck.checked = false;
+    document.querySelectorAll('.prod-select').forEach(cb => cb.checked = false);
+    updateBulkBar();
 };
 
 const populateCategories = () => {
